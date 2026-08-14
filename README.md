@@ -102,3 +102,7 @@ npm run check   # node --check 语法校验
 ## License
 
 MIT
+
+## 开发者参考
+
+- [DSH 插件开发经验总结（本插件实战）](docs/development-experience.zh.md)——生态机制 / 踩坑记录 / 开发流程 / 发布流程
