@@ -1,0 +1,5 @@
+# dsh-mcp-console bundle patch: activates the plugin row in any profile
+# that installs this package (via `dsh plugin --profile <name> add ...`).
+- insert:
+    - id: mcp-console
+      name: 'dsh-mcp-console'
