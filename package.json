@@ -1,6 +1,6 @@
 {
   "name": "dsh-mcp-console",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP management panel for DeepSeek Harness Web UI (Settings -> MCP): view / add / edit / remove MCP servers (stdio & streamable-http), import MCP configs from GitHub, backed by the official @deepseek-ai/dsh-mcp-client bridge with hot add/remove (no restart).",
   "type": "module",
   "main": "lib/index.js",
