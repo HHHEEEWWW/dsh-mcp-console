@@ -111,11 +111,12 @@ npx-cli.js 路径用 `npm config get prefix` 探测。
 - 写完必须做非 ASCII 字节扫描（>127 字节数 = 0）
 - JS/YAML/JSON 用 UTF-8 无 BOM（PS `Set-Content -Encoding UTF8` 会产生 BOM 炸 Node 解析）
 
-### 坑 4：P0——服务器运行中禁止任何 profile 变更
+### 坑 4：热装免重启（替代旧"停服安装"纪律）
 
-- package.json / cordis.patch.yml / pnpm 操作 / 插件本体修改，全部禁止（历史崩溃根因）
+- DSH 0.1.0-rc.6 支持免重启热装：junction 链接包目录到 `profiles/<profile>/node_modules/`（scoped 包建 @scope 子目录）+ `cordis.patch.yml` 追加 insert → HMR watchUserPatches 事务性热重放，`dev_plugin_status` 见 [active] 即成功
+- 运行中热重载单个插件：`dev_reload_package <包名>`（清缓存→重新 import→registry 重建 fiber，失败回滚保留旧代）
+- pnpm 重写 node_modules 可能清掉手动 junction——更新后检查重建链接即可
 - **后台 job（pwsh run_in_background）随服务器死亡**——守护进程必须用 `Start-Process` 启动独立 OS 进程
-- 守护进程方案：独立进程等待 3080 释放 → 自动安装 → 等待重启 → 自动验证 → 写日志。用户只需"停止 → 等 20 秒 → 启动"
 
 ### 坑 5：npm registry 版官方包不可独立安装
 
@@ -148,7 +149,7 @@ function errorChain(e) {
 
 1. **先克隆官方仓库深度学习**：`git clone https://github.com/deepseek-ai/deepseek-harness C:\Users\59263\.dsh\source\current`——机制全部以源码为准（loader/vendor、槽位契约、bundle 机制），不要猜
 2. **源码放 `~/.dsh/plugins/<插件名>/`**（插件相关一律在 .dsh 下，不占工作区）
-3. **开发期安装**（无需发布）：停服后复制目录到 `profiles/<profile>/node_modules/<插件名>/` + `cordis.patch.yml` 手工 insert（与 memory-evolve 同款）
+3. **开发期安装**（无需发布，免重启）：junction 链接目录到 `profiles/<profile>/node_modules/<插件名>/`（scoped 建 @scope 子目录）+ `cordis.patch.yml` 手工 insert（与 memory-evolve 同款），HMR 自动热装配
 4. **守护进程自动化**：`wait-install-<插件>.ps1`（等停服→装→等重启→验证→日志），用户零操作
 5. **验证脚本**：`verify-<插件>.ps1`（API 断言 + 状态检查），重启后一键验证
 6. **回滚预案**：安装前自动备份 cordis.patch.yml + package.json 到 `~/.dsh/backups/`；独立 rollback 脚本（不依赖 GUI）
@@ -171,4 +172,4 @@ function errorChain(e) {
 
 ## 五、一句话总结
 
-**DSH 插件开发 = 官方源码先行 + 零依赖手写 + 宿主平面层解析 + 停服安装纪律 + 隐私审计发布**。五个环节缺一不可，前四个保证"能跑"，最后一个保证"能发"。
+**DSH 插件开发 = 官方源码先行 + 零依赖手写 + 宿主平面层解析 + 热装免重启 + 隐私审计发布**。五个环节缺一不可，前四个保证"能跑"，最后一个保证"能发"。
